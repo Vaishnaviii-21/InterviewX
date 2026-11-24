@@ -119,7 +119,11 @@ Instantly log in as <b>Arjun Verma</b> (NIT '26, SDE-1 Candidate) with pre-loade
                 new_college = st.text_input("College / Institute", value="Engineering Institute")
                 new_degree = st.text_input("Degree", value="B.Tech in Computer Science")
             with col_a2:
-                new_grad_year = st.selectbox("Graduation Year", [2024, 2025, 2026, 2027, 2028], index=2)
+                new_grad_year = st.selectbox(
+                    "Graduation Year",
+                    [2024, 2025, 2026, 2027, 2028, 2029, 2030, 2031, 2032, 2033, 2034, 2035],
+                    index=2
+                )
                 role_options = [r["title"] for r in JOB_ROLES]
                 new_role = st.selectbox("Target Job Role", role_options, index=0)
 

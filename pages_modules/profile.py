@@ -66,7 +66,7 @@ def render_profile_page():
                 grad_year = st.number_input(
                     "Graduation Year",
                     min_value=2020,
-                    max_value=2032,
+                    max_value=2036,
                     value=int(curr_user.get("graduation_year", 2026) or 2026),
                     step=1
                 )

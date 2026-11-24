@@ -33,15 +33,25 @@ from services.gemini_service import GeminiService
 class TestGeminiConfiguration(unittest.TestCase):
 
     def setUp(self):
-        # Save original env
+        # Save original env and temporarily hide .env so unit tests are isolated
         self.original_env_key = os.environ.get("GEMINI_API_KEY")
+        self.env_file = BASE_DIR / ".env"
+        self.env_bak = BASE_DIR / ".env.test_backup"
+        if self.env_file.exists():
+            if self.env_bak.exists():
+                self.env_bak.unlink()
+            self.env_file.rename(self.env_bak)
         clear_gemini_api_key()
 
     def tearDown(self):
-        # Restore original env
+        # Restore original env and .env file
         clear_gemini_api_key()
         if self.original_env_key is not None:
             os.environ["GEMINI_API_KEY"] = self.original_env_key
+        if self.env_bak.exists():
+            if self.env_file.exists():
+                self.env_file.unlink()
+            self.env_bak.rename(self.env_file)
 
     def test_01_masking_never_exposes_complete_key(self):
         """Verify API key is always safely masked."""
