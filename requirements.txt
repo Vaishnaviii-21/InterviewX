@@ -1,0 +1,12 @@
+# Core Framework & UI
+streamlit>=1.30.0
+plotly>=5.18.0
+pandas>=2.0.0
+
+# API & Networking
+requests>=2.31.0
+google-genai>=0.1.1
+python-dotenv>=1.0.0
+
+# Document & Resume Ingestion
+pypdf>=3.17.0
