@@ -26,11 +26,23 @@ def login_user(user_dict: Dict[str, Any]):
 
 def logout_user():
     """
-    Clears the authenticated user and resets active page to landing.
+    Clears the authenticated user session and resets state,
+    redirecting the candidate to the Sign In / Login page.
+    Leaves user account and all saved database records completely intact.
     """
     st.session_state["user"] = None
     st.session_state["is_authenticated"] = False
-    st.session_state["active_page"] = "landing"
+    st.session_state["active_page"] = "auth"
+
+    # Purge any transient in-memory session/interview caches
+    if "active_interview" in st.session_state:
+        del st.session_state["active_interview"]
+    if "view_session_id" in st.session_state:
+        del st.session_state["view_session_id"]
+    if "use_resume_mode" in st.session_state:
+        st.session_state["use_resume_mode"] = False
+    if "active_roadmap_id" in st.session_state:
+        del st.session_state["active_roadmap_id"]
 
 def get_current_user() -> Optional[Dict[str, Any]]:
     """Returns the currently logged-in candidate profile or None."""

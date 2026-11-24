@@ -24,9 +24,15 @@ def render_weakness_tracker_page():
         "detected during your interviews. Track your revision progress and prioritize your preparation."
     )
 
-    logged_in = is_authenticated()
+    if not is_authenticated():
+        st.warning("🔒 **Protected Page:** You must be signed in to access your personal weakness tracker.", icon="🔒")
+        if st.button("🔑 Sign In / Register", type="primary"):
+            st.session_state["active_page"] = "auth"
+            st.rerun()
+        return
+
     curr_user = get_current_user()
-    user_id = curr_user["id"] if (logged_in and curr_user) else 1
+    user_id = curr_user["id"]
 
     all_topics = get_all_user_topics(user_id)
     weaknesses = [t for t in all_topics if t.get("status") == "weakness"]

@@ -19,12 +19,6 @@ from database import (
 
 def render_profile_page():
     """Renders the Candidate Profile & Account Settings view."""
-    st.markdown("## 👤 Candidate Profile & Settings")
-    st.markdown(
-        "Manage your personal details, career target, privacy settings, and account data. "
-        "Your interview evaluations and roadmaps adapt directly to your target role."
-    )
-
     if not is_authenticated():
         st.info("Please sign in or register to manage your personal profile and settings.", icon="ℹ️")
         if st.button("🔑 Sign In / Register", type="primary"):
@@ -39,6 +33,21 @@ def render_profile_page():
     fresh_user = get_user_by_id(user_id)
     if fresh_user:
         curr_user = fresh_user
+
+    # Header with title and clear Logout button
+    p_col1, p_col2 = st.columns([3, 1], vertical_alignment="center")
+    with p_col1:
+        st.markdown("## 👤 Candidate Profile & Settings")
+    with p_col2:
+        if st.button("🚪 Logout", key="profile_top_logout_btn", width="stretch", help="Sign out of your session"):
+            logout_user()
+            st.toast("Logged out successfully.")
+            st.rerun()
+
+    st.markdown(
+        "Manage your personal details, career target, privacy settings, and account data. "
+        "Your interview evaluations and roadmaps adapt directly to your target role."
+    )
 
     # Tabbed Interface: Profile Details | Resume & Privacy | Danger Zone
     tab_profile, tab_resume, tab_danger = st.tabs([
@@ -156,6 +165,26 @@ def render_profile_page():
                 st.rerun()
 
     with tab_danger:
+        # Section 1: Session Management & Logout
+        st.markdown("### 🚪 Account Session: Log Out")
+        st.markdown(
+            "End your current active session on this device. Logging out safely clears your "
+            "authentication credentials and returns you to the Sign In page."
+        )
+        st.info(
+            "💡 **Your Data is Safe:** Logging out does NOT delete your account. Your mock interview history, "
+            "question evaluations, weakness tracker records, and preparation roadmaps remain securely saved "
+            "in the database for your next login.",
+            icon="ℹ️"
+        )
+        if st.button("🚪 Log Out of InterviewX", key="profile_tab_logout_btn", type="secondary", width="stretch"):
+            logout_user()
+            st.toast("Logged out successfully.")
+            st.rerun()
+
+        st.markdown("---")
+
+        # Section 2: Danger Zone: Delete Account (Separate & Unchanged)
         st.markdown("### ⚠️ Danger Zone: Delete Account")
         st.markdown(
             "Permanently delete your account and all associated records. "

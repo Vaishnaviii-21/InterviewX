@@ -73,6 +73,12 @@ def main():
     # 4. Render Navigation Sidebar
     selected_page = render_sidebar()
 
+    # 4b. Guard protected dashboard and private candidate pages
+    PROTECTED_PAGES = {"dashboard", "profile", "history", "analytics", "weakness_tracker", "roadmap"}
+    if not is_authenticated() and selected_page in PROTECTED_PAGES:
+        selected_page = "auth"
+        st.session_state["active_page"] = "auth"
+
     # 5. Route to target page module
     try:
         if selected_page == "landing":

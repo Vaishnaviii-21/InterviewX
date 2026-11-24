@@ -23,9 +23,15 @@ def render_analytics_page():
         "analyze category distributions, and monitor how close you are to placement readiness."
     )
 
-    logged_in = is_authenticated()
+    if not is_authenticated():
+        st.warning("🔒 **Protected Page:** You must be signed in to access progress analytics.", icon="🔒")
+        if st.button("🔑 Sign In / Register", type="primary"):
+            st.session_state["active_page"] = "auth"
+            st.rerun()
+        return
+
     curr_user = get_current_user()
-    user_id = curr_user["id"] if (logged_in and curr_user) else 1
+    user_id = curr_user["id"]
 
     analytics = get_user_analytics(user_id=user_id)
     total_interviews = analytics.get("total_interviews", 0)

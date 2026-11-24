@@ -12,13 +12,39 @@ from services.analytics_service import AnalyticsService
 from components.cards import render_metric_card, render_honest_feedback_comparison
 from components.charts import render_score_trend_chart, render_competency_pie_chart
 from database.models import get_interview_questions, update_user_profile, get_user_by_id
-from auth import get_current_user, is_authenticated
+from auth import get_current_user, is_authenticated, logout_user
 
 def render_dashboard():
     """Renders the comprehensive candidate analytics dashboard."""
-    logged_in = is_authenticated()
+    if not is_authenticated():
+        st.warning("🔒 **Protected Page:** You must be signed in to access the Candidate Dashboard.", icon="🔒")
+        st.markdown(
+            "The Candidate Dashboard contains private interview history, AI performance evaluations, "
+            "and personal placement roadmaps. Please sign in or register to access your dashboard."
+        )
+        col_c1, col_c2 = st.columns(2)
+        with col_c1:
+            if st.button("🔑 Sign In / Register", type="primary", width="stretch"):
+                st.session_state["active_page"] = "auth"
+                st.rerun()
+        with col_c2:
+            if st.button("🏠 Back to Home", width="stretch"):
+                st.session_state["active_page"] = "landing"
+                st.rerun()
+        return
+
     curr_user = get_current_user()
-    user_id = curr_user["id"] if (logged_in and curr_user) else 1
+    user_id = curr_user["id"]
+
+    # Top Navigation / Utility Row with Clear Logout Button
+    head_col1, head_col2 = st.columns([3, 1], vertical_alignment="center")
+    with head_col1:
+        st.markdown("## 📊 Candidate Dashboard")
+    with head_col2:
+        if st.button("🚪 Logout", key="dash_logout_btn", width="stretch", help="Sign out of your account"):
+            logout_user()
+            st.toast("Logged out successfully.")
+            st.rerun()
 
     data = AnalyticsService.get_dashboard_summary(user_id=user_id)
     user = data["user"]
@@ -28,9 +54,6 @@ def render_dashboard():
     readiness_desc = data["readiness_desc"]
     score_delta = data["score_delta"]
     recent_interviews = data["recent_interviews"]
-
-    if not logged_in:
-        st.info("ℹ️ **Viewing Demo Candidate Account:** You are viewing sample data for Arjun Verma. [Sign in or create your free account](#) to track your personal mock interviews.", icon="💡")
 
     # 1. Unified Profile Header Banner
     user_initial = (user.get("name") or "C")[0].upper()

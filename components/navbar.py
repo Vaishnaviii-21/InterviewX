@@ -49,22 +49,26 @@ X
         logged_in = is_authenticated()
         user = get_current_user()
 
-        page_options = {
-            "landing": "🏠 Home",
-            "dashboard": "📊 Candidate Dashboard",
-            "resume_analyzer": "📄 Resume Analyzer",
-            "interview": "🎙️ AI Mock Interview",
-            "feedback": "📋 Feedback Report",
-            "weakness_tracker": "⚠️ Weakness Tracker",
-            "roadmap": "🗺️ Preparation Roadmap",
-            "analytics": "📈 Progress Analytics",
-            "history": "📁 Interview History",
-        }
-
         if logged_in:
-            page_options["profile"] = "👤 Profile & Settings"
+            page_options = {
+                "landing": "🏠 Home",
+                "dashboard": "📊 Candidate Dashboard",
+                "resume_analyzer": "📄 Resume Analyzer",
+                "interview": "🎙️ AI Mock Interview",
+                "feedback": "📋 Feedback Report",
+                "weakness_tracker": "⚠️ Weakness Tracker",
+                "roadmap": "🗺️ Preparation Roadmap",
+                "analytics": "📈 Progress Analytics",
+                "history": "📁 Interview History",
+                "profile": "👤 Profile & Settings",
+            }
         else:
-            page_options["auth"] = "🔑 Sign In / Register"
+            page_options = {
+                "landing": "🏠 Home",
+                "auth": "🔑 Sign In / Register",
+                "interview": "🎙️ AI Mock Interview",
+                "resume_analyzer": "📄 Resume Analyzer",
+            }
 
         # Sync with session_state if set externally
         default_idx = 0
@@ -72,8 +76,8 @@ X
         keys = list(page_options.keys())
         if current_page in keys:
             default_idx = keys.index(current_page)
-        elif not logged_in and current_page == "auth":
-            default_idx = keys.index("auth")
+        elif not logged_in:
+            default_idx = keys.index("auth") if "auth" in keys else 0
 
         selected_label = st.radio(
             "Navigation",
@@ -114,9 +118,9 @@ X
 </div>""").strip()
             st.markdown(sidebar_prof_html, unsafe_allow_html=True)
 
-            if st.button("🚪 Sign Out", width="stretch"):
+            if st.button("🚪 Logout", key="sidebar_logout_btn", width="stretch", help="Sign out of your account"):
                 logout_user()
-                st.toast("Signed out successfully.")
+                st.toast("Logged out successfully.")
                 st.rerun()
 
         else:

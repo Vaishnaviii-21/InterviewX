@@ -23,9 +23,15 @@ def render_history_page():
         "measure accuracy improvements, review question-level evaluations, or export reports."
     )
 
-    logged_in = is_authenticated()
+    if not is_authenticated():
+        st.warning("🔒 **Protected Page:** You must be signed in to view your interview history.", icon="🔒")
+        if st.button("🔑 Sign In / Register", type="primary"):
+            st.session_state["active_page"] = "auth"
+            st.rerun()
+        return
+
     curr_user = get_current_user()
-    user_id = curr_user["id"] if (logged_in and curr_user) else 1
+    user_id = curr_user["id"]
 
     interviews = get_all_interviews(user_id=user_id, limit=50)
 

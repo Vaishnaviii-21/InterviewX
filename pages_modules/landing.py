@@ -39,7 +39,10 @@ and prepares you for top product startups, tech giants, and campus recruitment d
     c_btn1, c_btn2, c_btn3 = st.columns([1.5, 1.5, 2.5])
     with c_btn1:
         if st.button("📊 Open Dashboard", type="primary", width="stretch"):
-            st.session_state["active_page"] = "dashboard"
+            if is_authenticated():
+                st.session_state["active_page"] = "dashboard"
+            else:
+                st.session_state["active_page"] = "auth"
             st.rerun()
     with c_btn2:
         if is_authenticated():

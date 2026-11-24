@@ -29,9 +29,15 @@ def render_roadmap_page():
         "**structured, day-by-day preparation roadmap** with interactive checkboxes to track your progress."
     )
 
-    logged_in = is_authenticated()
+    if not is_authenticated():
+        st.warning("🔒 **Protected Page:** You must be signed in to access your preparation roadmaps.", icon="🔒")
+        if st.button("🔑 Sign In / Register", type="primary"):
+            st.session_state["active_page"] = "auth"
+            st.rerun()
+        return
+
     curr_user = get_current_user()
-    user_id = curr_user["id"] if (logged_in and curr_user) else 1
+    user_id = curr_user["id"]
     user_record = get_user_by_id(user_id) or {"target_role": "Software Development Engineer (SDE-1)"}
 
     # Fetch weak topics from database
