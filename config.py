@@ -43,6 +43,18 @@ TAGLINE = "Practice. Get Honest Feedback. Improve. Get Hired."
 TARGET_AUDIENCE = "Indian college students, fresh graduates and job seekers"
 VERSION = "1.0.0-stage1"
 
+# Readiness & System Benchmarks
+READINESS_TARGET_BENCHMARK = 75.0
+READINESS_POLISH_BENCHMARK = 60.0
+READINESS_READY_BENCHMARK = 80.0
+MAX_RESUME_FILE_SIZE = 5 * 1024 * 1024
+
+# Accessible Brand Colors
+COLOR_SUCCESS = "#10B981"
+COLOR_WARNING = "#F59E0B"
+COLOR_DANGER = "#EF4444"
+COLOR_PRIMARY = "#4F46E5"
+
 # Target Job Roles relevant for Indian Campus Placements & Off-campus Drives
 JOB_ROLES = [
     {

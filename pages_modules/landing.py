@@ -15,18 +15,18 @@ def render_landing_page():
     
     # Hero Section
     hero_html = textwrap.dedent(f"""\
-<div class="hero-container">
+<div class="hero-container" role="region" aria-label="Welcome Banner">
 <div style="display: flex; gap: 10px; margin-bottom: 1.25rem; flex-wrap: wrap;">
 <div class="brand-badge">
-<span>🎯</span> Engineered for Campus & Off-Campus Placements
+<span aria-hidden="true">🎯</span> Engineered for Campus &amp; Off-Campus Placements
 </div>
 <div style="background: #F1F5F9; border: 1px solid #CBD5E1; color: #334155; padding: 6px 14px; border-radius: 9999px; font-weight: 600; font-size: 0.85rem;">
-🇮🇳 Tier-1, Tier-2 & Tier-3 Graduates
+<span aria-hidden="true">🇮🇳</span> Tier-1, Tier-2 &amp; Tier-3 Graduates
 </div>
 </div>
-<div class="hero-tagline">
+<h1 class="hero-tagline">
 Practice. Get Honest Feedback.<br>Improve. Get Hired.
-</div>
+</h1>
 <div class="hero-subtitle">
 Most mock interview platforms give flattering, generic praise that builds false confidence.
 <b>InterviewX</b> delivers <b>brutally honest technical evaluations</b>, exposes dangerous misconceptions, 

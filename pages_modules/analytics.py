@@ -11,24 +11,20 @@ Visualizes long-term candidate interview trajectories using Plotly:
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
-from auth import get_current_user, is_authenticated
+from auth import get_current_user, is_authenticated, render_auth_guard
 from database import get_user_analytics, get_all_interviews
 from components.charts import render_score_trend_chart, render_competency_pie_chart
 
 def render_analytics_page():
     """Renders the comprehensive performance analytics dashboard."""
-    st.markdown("## 📈 Progress Analytics & Performance Trends")
+    if not render_auth_guard("Progress Analytics & Performance Trends"):
+        return
+
+    st.markdown('<h1 class="page-title-h1"><span aria-hidden="true">📈</span> Progress Analytics &amp; Performance Trends</h1>', unsafe_allow_html=True)
     st.markdown(
         "Track your quantitative interview trajectory over time. Measure accuracy gains, "
         "analyze category distributions, and monitor how close you are to placement readiness."
     )
-
-    if not is_authenticated():
-        st.warning("🔒 **Protected Page:** You must be signed in to access progress analytics.", icon="🔒")
-        if st.button("🔑 Sign In / Register", type="primary"):
-            st.session_state["active_page"] = "auth"
-            st.rerun()
-        return
 
     curr_user = get_current_user()
     user_id = curr_user["id"]

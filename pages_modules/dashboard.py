@@ -4,6 +4,7 @@ Displays key performance indicators, score trends, competency pie breakdown,
 recurring weaknesses, strengths, and recent interview reports with clean layout alignment.
 """
 
+import html
 import json
 import textwrap
 import streamlit as st
@@ -12,25 +13,11 @@ from services.analytics_service import AnalyticsService
 from components.cards import render_metric_card, render_honest_feedback_comparison
 from components.charts import render_score_trend_chart, render_competency_pie_chart
 from database.models import get_interview_questions, update_user_profile, get_user_by_id
-from auth import get_current_user, is_authenticated, logout_user
+from auth import get_current_user, is_authenticated, logout_user, render_auth_guard
 
 def render_dashboard():
     """Renders the comprehensive candidate analytics dashboard."""
-    if not is_authenticated():
-        st.warning("🔒 **Protected Page:** You must be signed in to access the Candidate Dashboard.", icon="🔒")
-        st.markdown(
-            "The Candidate Dashboard contains private interview history, AI performance evaluations, "
-            "and personal placement roadmaps. Please sign in or register to access your dashboard."
-        )
-        col_c1, col_c2 = st.columns(2)
-        with col_c1:
-            if st.button("🔑 Sign In / Register", type="primary", width="stretch"):
-                st.session_state["active_page"] = "auth"
-                st.rerun()
-        with col_c2:
-            if st.button("🏠 Back to Home", width="stretch"):
-                st.session_state["active_page"] = "landing"
-                st.rerun()
+    if not render_auth_guard("the Candidate Dashboard"):
         return
 
     curr_user = get_current_user()
@@ -39,7 +26,7 @@ def render_dashboard():
     # Top Navigation / Utility Row with Clear Logout Button
     head_col1, head_col2 = st.columns([3, 1], vertical_alignment="center")
     with head_col1:
-        st.markdown("## 📊 Candidate Dashboard")
+        st.markdown('<h1 class="page-title-h1"><span aria-hidden="true">📊</span> Candidate Dashboard</h1>', unsafe_allow_html=True)
     with head_col2:
         if st.button("🚪 Logout", key="dash_logout_btn", width="stretch", help="Sign out of your account"):
             logout_user()
@@ -55,7 +42,7 @@ def render_dashboard():
     score_delta = data["score_delta"]
     recent_interviews = data["recent_interviews"]
 
-    # 1. Unified Profile Header Banner
+    # 1. Unified Profile Header Banner (Securely escaped & accessible)
     user_initial = (user.get("name") or "C")[0].upper()
     user_name = user.get("name", "Candidate")
     user_role = user.get("target_role", "Software Development Engineer (SDE-1)")
@@ -63,17 +50,23 @@ def render_dashboard():
     user_grad = user.get("graduation_year", 2026)
     readiness_score = metrics.get("readiness_index", 0)
 
+    clean_uinitial = html.escape(str(user_initial))
+    clean_uname = html.escape(str(user_name))
+    clean_urole = html.escape(str(user_role))
+    clean_ucollege = html.escape(str(user_college))
+    clean_rlabel = html.escape(str(readiness_label))
+
     profile_html = textwrap.dedent(f"""\
-<div class="profile-banner">
+<div class="profile-banner" role="region" aria-label="Candidate Profile Summary">
 <div class="profile-left">
-<div class="profile-avatar">{user_initial}</div>
+<div class="profile-avatar" aria-hidden="true">{clean_uinitial}</div>
 <div class="profile-info">
-<h2 class="profile-greeting">Welcome back, <span class="profile-name">{user_name}</span></h2>
+<h2 class="profile-greeting">Welcome back, <span class="profile-name">{clean_uname}</span></h2>
 <div class="profile-meta-row">
-<span>🎯 Target: <b class="profile-role-tag">{user_role}</b></span>
-<span class="profile-meta-separator">•</span>
-<span>🎓 {user_college}</span>
-<span class="profile-meta-separator">•</span>
+<span><span aria-hidden="true">🎯</span> Target: <b class="profile-role-tag">{clean_urole}</b></span>
+<span class="profile-meta-separator" aria-hidden="true">•</span>
+<span><span aria-hidden="true">🎓</span> {clean_ucollege}</span>
+<span class="profile-meta-separator" aria-hidden="true">•</span>
 <span>Class of {user_grad}</span>
 </div>
 </div>
@@ -82,9 +75,10 @@ def render_dashboard():
 <div class="readiness-pill-box">
 <div class="readiness-tag">Campus Placement Readiness</div>
 <div class="readiness-status-row">
-<span class="status-indicator-dot" style="background-color: {readiness_color};"></span>
-<span class="readiness-score-number" style="color: {readiness_color};">{readiness_score}%</span>
-<span class="readiness-label-badge">{readiness_label}</span>
+<span class="status-indicator-dot" style="background-color: {readiness_color};" aria-hidden="true"></span>
+<span class="sr-only">Readiness Status: {clean_rlabel} ({readiness_score}%)</span>
+<span class="readiness-score-number" style="color: {readiness_color};" aria-label="Readiness Score: {readiness_score} percent">{readiness_score}%</span>
+<span class="readiness-label-badge">{clean_rlabel}</span>
 </div>
 </div>
 </div>
@@ -156,14 +150,26 @@ def render_dashboard():
     with col_trend:
         st.markdown("#### 📈 Performance Trendline")
         st.caption("Overall interview score progression vs 75% campus placement target benchmark.")
-        trend_fig = render_score_trend_chart(metrics.get("score_trends", []))
-        st.plotly_chart(trend_fig, width="stretch")
+        trend_trends = metrics.get("score_trends", [])
+        trend_fig = render_score_trend_chart(trend_trends)
+        st.plotly_chart(trend_fig, width="stretch", config={"displayModeBar": False, "responsive": True})
+        if trend_trends:
+            latest_s = trend_trends[-1].get("overall_score", 0.0)
+            st.markdown(f'<div class="sr-only">Performance Trend: {len(trend_trends)} session(s) completed. Most recent score is {latest_s:.1f} percent against target benchmark of 75 percent.</div>', unsafe_allow_html=True)
 
     with col_pie:
         st.markdown("#### 🥧 Competency Performance Breakdown")
         st.caption("Candidate's actual evaluation scores across the 4 core competency pillars.")
         pie_fig = render_competency_pie_chart(metrics)
-        st.plotly_chart(pie_fig, width="stretch")
+        st.plotly_chart(pie_fig, width="stretch", config={"displayModeBar": False, "responsive": True})
+        acc_val = float(metrics.get("avg_accuracy", 0.0))
+        rel_val = float(metrics.get("avg_relevance", 0.0))
+        comp_val = float(metrics.get("avg_completeness", 0.0))
+        clar_val = float(metrics.get("avg_clarity", 0.0))
+        st.markdown(
+            f'<div class="sr-only">Competency Pillar Breakdown: Technical Accuracy {acc_val:.1f}%, Relevance {rel_val:.1f}%, Completeness {comp_val:.1f}%, Clarity &amp; Communication {clar_val:.1f}%.</div>',
+            unsafe_allow_html=True
+        )
 
     st.markdown('<div class="dashboard-spacer"></div>', unsafe_allow_html=True)
 
@@ -176,18 +182,21 @@ def render_dashboard():
         weaknesses = metrics.get("weaknesses", [])
         if weaknesses:
             for w in weaknesses:
+                w_topic = html.escape(str(w.get('topic_name', 'Topic')))
+                w_notes = html.escape(str(w.get('notes', '')))
+                w_freq = int(w.get('frequency', 1))
                 w_html = textwrap.dedent(f"""\
-<div class="topic-card-weak">
+<div class="topic-card-weak" role="region" aria-label="Weakness: {w_topic}">
 <div style="display: flex; justify-content: space-between; align-items: center;">
 <span style="font-weight: 700; color: #991B1B; font-size: 0.9rem;">
-❌ {w['topic_name']}
+<span aria-hidden="true">❌</span> {w_topic}
 </span>
 <span style="background: #FEE2E2; color: #991B1B; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 6px;">
-Flagged {w['frequency']}x
+Flagged {w_freq}x
 </span>
 </div>
 <div style="font-size: 0.8rem; color: #7F1D1D; margin-top: 5px; line-height: 1.45;">
-{w.get('notes', '')}
+{w_notes}
 </div>
 </div>""").strip()
                 st.markdown(w_html, unsafe_allow_html=True)
@@ -200,18 +209,21 @@ Flagged {w['frequency']}x
         strengths = metrics.get("strengths", [])
         if strengths:
             for s in strengths:
+                s_topic = html.escape(str(s.get('topic_name', 'Topic')))
+                s_notes = html.escape(str(s.get('notes', '')))
+                s_freq = int(s.get('frequency', 1))
                 s_html = textwrap.dedent(f"""\
-<div class="topic-card-strength">
+<div class="topic-card-strength" role="region" aria-label="Strength: {s_topic}">
 <div style="display: flex; justify-content: space-between; align-items: center;">
 <span style="font-weight: 700; color: #065F46; font-size: 0.9rem;">
-✅ {s['topic_name']}
+<span aria-hidden="true">✅</span> {s_topic}
 </span>
 <span style="background: #D1FAE5; color: #065F46; font-size: 0.75rem; font-weight: 700; padding: 2px 8px; border-radius: 6px;">
-Verified {s['frequency']}x
+Verified {s_freq}x
 </span>
 </div>
 <div style="font-size: 0.8rem; color: #064E3B; margin-top: 5px; line-height: 1.45;">
-{s.get('notes', '')}
+{s_notes}
 </div>
 </div>""").strip()
                 st.markdown(s_html, unsafe_allow_html=True)

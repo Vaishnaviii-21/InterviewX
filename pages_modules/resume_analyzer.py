@@ -16,7 +16,7 @@ from utils.resume_parser import ResumeParser, ResumeAnalyzer
 
 def render_resume_analyzer_page():
     """Renders the Resume Analyzer interface with upload, analysis, and insights."""
-    st.markdown("## 📄 Resume Analyzer & Career Profiler")
+    st.markdown('<h1 class="page-title-h1"><span aria-hidden="true">📄</span> Resume Analyzer &amp; Career Profiler</h1>', unsafe_allow_html=True)
     st.markdown(
         "Upload your resume to extract skills, detect missing competencies, get actionable improvement tips, "
         "and generate **custom interview questions based directly on your projects and stack**."

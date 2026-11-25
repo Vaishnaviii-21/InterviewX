@@ -8,7 +8,7 @@ Aggregates recurring weaknesses and technical gaps detected across mock intervie
 """
 
 import streamlit as st
-from auth import get_current_user, is_authenticated
+from auth import get_current_user, is_authenticated, render_auth_guard
 from database import (
     get_all_user_topics,
     update_topic_revision_status,
@@ -18,18 +18,14 @@ from database import (
 
 def render_weakness_tracker_page():
     """Renders the comprehensive Weakness Tracker dashboard."""
-    st.markdown("## ⚠️ Personalized Weakness & Competency Tracker")
+    if not render_auth_guard("Personalized Weakness & Competency Tracker"):
+        return
+
+    st.markdown('<h1 class="page-title-h1"><span aria-hidden="true">⚠️</span> Personalized Weakness &amp; Competency Tracker</h1>', unsafe_allow_html=True)
     st.markdown(
         "InterviewX automatically indexes technical gaps, syntax errors, and incomplete concepts "
         "detected during your interviews. Track your revision progress and prioritize your preparation."
     )
-
-    if not is_authenticated():
-        st.warning("🔒 **Protected Page:** You must be signed in to access your personal weakness tracker.", icon="🔒")
-        if st.button("🔑 Sign In / Register", type="primary"):
-            st.session_state["active_page"] = "auth"
-            st.rerun()
-        return
 
     curr_user = get_current_user()
     user_id = curr_user["id"]

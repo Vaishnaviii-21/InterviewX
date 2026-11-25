@@ -8,6 +8,7 @@ Displays comprehensive performance reports after completed mock interviews:
 - Direct action hooks to study roadmaps and weakness tracker
 """
 
+import html
 import json
 import streamlit as st
 import plotly.graph_objects as go
@@ -23,7 +24,7 @@ from utils.pdf_generator import PDFReportGenerator
 
 def render_feedback_page():
     """Renders the comprehensive Post-Interview Feedback Report."""
-    st.markdown("## 📋 Post-Interview Feedback Report")
+    st.markdown('<h1 class="page-title-h1"><span aria-hidden="true">📋</span> Post-Interview Feedback Report</h1>', unsafe_allow_html=True)
     st.markdown(
         "Audit your interview performance with uncompromising engineering rigor. Review your score breakdown, "
         "identify technical misconceptions, compare with Tier-1 sample answers, and download your full PDF report."
@@ -106,26 +107,33 @@ def render_feedback_page():
     score_color = "#10B981" if ovr >= 75 else ("#F59E0B" if ovr >= 60 else "#EF4444")
     readiness = session.get("readiness_assessment", "Placement Ready" if ovr >= 75 else ("Needs Target Polish" if ovr >= 60 else "Early Prep Phase"))
 
+    clean_role = html.escape(str(session.get('role_title', 'Software Engineer')))
+    clean_type = html.escape(str(session.get('interview_type', 'Technical Round')))
+    clean_diff = html.escape(str(session.get('difficulty', 'Intermediate')))
+    clean_readiness = html.escape(str(readiness))
+    clean_summary = html.escape(str(session.get('summary', 'No summary recorded.')))
+    session_date = html.escape(str(session.get('created_at', ''))[:16])
+
     st.markdown(f"""
-    <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03);">
+    <div style="background: #FFFFFF; border: 1px solid #E2E8F0; border-radius: 16px; padding: 1.5rem; margin-bottom: 1.5rem; box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03);" role="region" aria-label="Performance Summary Banner">
         <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px; margin-bottom: 12px;">
             <div>
                 <span style="font-size: 0.75rem; font-weight: 700; color: #4F46E5; text-transform: uppercase; letter-spacing: 0.05em;">Session #{session['id']} Evaluation</span>
-                <h2 style="margin: 4px 0 2px 0; color: #0F172A; font-size: 1.4rem;">{session.get('role_title', 'Software Engineer')}</h2>
-                <span style="font-size: 0.85rem; color: #64748B;">{session.get('interview_type', 'Technical Round')} • {session.get('difficulty', 'Intermediate')} • {str(session.get('created_at', ''))[:16]}</span>
+                <h2 style="margin: 4px 0 2px 0; color: #0F172A; font-size: 1.4rem;">{clean_role}</h2>
+                <span style="font-size: 0.85rem; color: #64748B;">{clean_type} • {clean_diff} • {session_date}</span>
             </div>
             <div style="display: flex; gap: 15px; align-items: center;">
                 <div style="text-align: right;">
-                    <div style="font-size: 0.72rem; font-weight: 700; color: #64748B; text-transform: uppercase;">Overall Score</div>
-                    <div style="font-size: 2rem; font-weight: 800; color: {score_color}; line-height: 1.1;">{ovr:.1f}%</div>
+                    <div style="font-size: 0.75rem; font-weight: 700; color: #334155; text-transform: uppercase;">Overall Score</div>
+                    <div style="font-size: 2rem; font-weight: 800; color: {score_color}; line-height: 1.1;" aria-label="Overall score: {ovr:.1f} percent">{ovr:.1f}%</div>
                 </div>
                 <div style="background: {score_color}18; color: {score_color}; font-weight: 800; font-size: 0.82rem; padding: 6px 14px; border-radius: 20px; border: 1px solid {score_color}35;">
-                    {readiness}
+                    {clean_readiness}
                 </div>
             </div>
         </div>
         <div style="font-size: 0.9rem; color: #334155; line-height: 1.55; border-top: 1px solid #F1F5F9; padding-top: 12px;">
-            <b>Executive Assessment:</b> {session.get('summary', 'No summary recorded.')}
+            <b>Executive Assessment:</b> {clean_summary}
         </div>
     </div>
     """, unsafe_allow_html=True)

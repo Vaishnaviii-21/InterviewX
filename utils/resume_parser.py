@@ -38,12 +38,21 @@ KNOWN_TOOLS = [
     "microservices", "unit testing", "pytest", "selenium", "kafka", "rabbitmq"
 ]
 
+# Security Limits
+MAX_RESUME_BYTES = 5 * 1024 * 1024        # 5 MB max uploaded resume size
+MAX_DECOMPRESSED_BYTES = 25 * 1024 * 1024  # 25 MB max uncompressed stream (zip bomb mitigation)
+
 class ResumeParser:
-    """Extracts raw text from PDF, DOCX, and plain text files."""
+    """Extracts raw text from PDF, DOCX, and plain text files safely with zip bomb defense."""
 
     @staticmethod
     def extract_text_from_bytes(file_bytes: bytes, filename: str) -> str:
-        """Determines file type from extension and extracts text."""
+        """Determines file type from extension and extracts text safely."""
+        if not file_bytes or len(file_bytes) == 0:
+            return ""
+        if len(file_bytes) > MAX_RESUME_BYTES:
+            return ""
+
         fname_lower = filename.lower()
         if fname_lower.endswith(".pdf"):
             return ResumeParser.extract_from_pdf(file_bytes)
@@ -61,6 +70,8 @@ class ResumeParser:
     @staticmethod
     def extract_from_txt(file_bytes: bytes) -> str:
         """Extracts text from TXT or Markdown bytes."""
+        if not file_bytes:
+            return ""
         for enc in ["utf-8", "latin-1", "cp1252"]:
             try:
                 return file_bytes.decode(enc)
@@ -71,12 +82,19 @@ class ResumeParser:
     @staticmethod
     def extract_from_docx(file_bytes: bytes) -> str:
         """
-        Pure-Python DOCX text extraction.
+        Pure-Python DOCX text extraction with zip bomb mitigation.
         A DOCX file is a zip archive containing word/document.xml.
         Extracts all paragraph and table text elements cleanly.
         """
+        if not file_bytes:
+            return ""
         try:
             with zipfile.ZipFile(io.BytesIO(file_bytes)) as docx_zip:
+                # Zip bomb defense: verify uncompressed size
+                total_uncompressed = sum(info.file_size for info in docx_zip.infolist())
+                if total_uncompressed > MAX_DECOMPRESSED_BYTES:
+                    return ""
+
                 if "word/document.xml" not in docx_zip.namelist():
                     return ""
                 xml_content = docx_zip.read("word/document.xml")
@@ -93,8 +111,10 @@ class ResumeParser:
                     if runs:
                         paragraphs.append("".join(runs))
                 return "\n".join(paragraphs).strip()
-        except Exception as e:
-            # Fallback if zip parsing fails
+        except Exception:
+            # If docx extraction fails and file is a zip archive, do NOT leak raw binary
+            if file_bytes.startswith(b"PK\x03\x04"):
+                return ""
             try:
                 return file_bytes.decode("utf-8", errors="ignore")
             except Exception:

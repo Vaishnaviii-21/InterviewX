@@ -4,6 +4,7 @@ Handles authenticated multi-user state, routing, profile status, and Gemini API 
 """
 
 import os
+import html
 import textwrap
 import streamlit as st
 from config import (
@@ -98,22 +99,27 @@ X
             u_grad = user.get("graduation_year", 2026)
             u_uname = user.get("username", "")
 
+            clean_uname = html.escape(str(u_name))
+            clean_urole = html.escape(str(u_role))
+            clean_ucollege = html.escape(str(u_college))
+            clean_uuname = html.escape(str(u_uname))
+
             sidebar_prof_html = textwrap.dedent(f"""\
-<div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 0.85rem; margin-bottom: 0.75rem;">
+<div style="background: #F8FAFC; border: 1px solid #E2E8F0; border-radius: 12px; padding: 0.85rem; margin-bottom: 0.75rem;" role="region" aria-label="Authenticated Candidate Badge">
 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px;">
-<span style="font-size: 0.72rem; font-weight: 700; color: #10B981; text-transform: uppercase; letter-spacing: 0.05em;">
-● Logged In
+<span style="font-size: 0.72rem; font-weight: 700; color: #059669; text-transform: uppercase; letter-spacing: 0.05em;">
+<span aria-hidden="true">●</span> Logged In
 </span>
-<span style="font-size: 0.72rem; color: #64748B; font-family: monospace;">@{u_uname}</span>
+<span style="font-size: 0.75rem; color: #334155; font-family: monospace;">@{clean_uuname}</span>
 </div>
 <div style="font-weight: 700; font-size: 0.95rem; color: #0F172A;">
-{u_name}
+{clean_uname}
 </div>
-<div style="font-size: 0.8rem; color: #4F46E5; font-weight: 600;">
-{u_role}
+<div style="font-size: 0.8rem; color: #3730A3; font-weight: 600;">
+{clean_urole}
 </div>
-<div style="font-size: 0.75rem; color: #64748B; margin-top: 2px;">
-🎓 {u_college} • Class of {u_grad}
+<div style="font-size: 0.75rem; color: #334155; margin-top: 2px;">
+<span aria-hidden="true">🎓</span> {clean_ucollege} • Class of {u_grad}
 </div>
 </div>""").strip()
             st.markdown(sidebar_prof_html, unsafe_allow_html=True)
@@ -233,8 +239,8 @@ Sign in to save your personal mock transcripts, scores, and roadmaps.
                     st.rerun()
 
         st.markdown(
-            '<div style="text-align: center; font-size: 0.72rem; color: #94A3B8; margin-top: 1.5rem;">'
-            'InterviewX v1.0 • Built with Gemini 2.5 & Streamlit'
+            '<div style="text-align: center; font-size: 0.75rem; color: #475569; margin-top: 1.5rem;">'
+            'InterviewX v1.0 • Built with Gemini 2.5 &amp; Streamlit'
             '</div>',
             unsafe_allow_html=True
         )

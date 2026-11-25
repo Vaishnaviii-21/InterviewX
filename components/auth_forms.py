@@ -24,14 +24,14 @@ def render_auth_page():
 
     # Container Card Header
     auth_header_html = textwrap.dedent("""\
-<div class="auth-header-card">
-<div style="display: inline-flex; align-items: center; gap: 8px; background: #EEF2FF; color: #4F46E5; padding: 4px 12px; border-radius: 9999px; font-weight: 700; font-size: 0.8rem; margin-bottom: 0.75rem;">
-<span>🔒</span> Secure Candidate Portal
+<div class="auth-header-card" role="region" aria-label="Authentication Portal">
+<div style="display: inline-flex; align-items: center; gap: 8px; background: #EEF2FF; color: #3730A3; padding: 4px 12px; border-radius: 9999px; font-weight: 700; font-size: 0.8rem; margin-bottom: 0.75rem;">
+<span aria-hidden="true">🔒</span> Secure Candidate Portal
 </div>
-<h2 style="font-size: 1.85rem; font-weight: 800; color: #0F172A; margin: 0 0 0.5rem 0; letter-spacing: -0.02em;">
+<h1 class="page-title-h1">
 Welcome to <span style="color: #4F46E5;">InterviewX</span>
-</h2>
-<p style="font-size: 0.925rem; color: #64748B; margin: 0; line-height: 1.5;">
+</h1>
+<p style="font-size: 0.925rem; color: #334155; margin: 0; line-height: 1.5;">
 Sign in to access your mock interview transcripts, resume analysis, and placement roadmaps.
 </p>
 </div>""").strip()
@@ -109,7 +109,7 @@ Instantly log in as <b>Arjun Verma</b> (NIT '26, SDE-1 Candidate) with pre-loade
                 new_username = st.text_input("Username *", placeholder="e.g., rohit_26", help="Letters, numbers, and underscores (3-30 chars).")
             with col_u2:
                 new_email = st.text_input("Email Address *", placeholder="e.g., rohit@iitb.ac.in")
-                new_pwd = st.text_input("Password *", type="password", placeholder="Min 6 characters")
+                new_pwd = st.text_input("Password *", type="password", placeholder="Min 8 characters")
 
             new_pwd_confirm = st.text_input("Confirm Password *", type="password", placeholder="Re-enter password")
 

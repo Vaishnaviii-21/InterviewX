@@ -271,6 +271,8 @@ def _apply_schema_enhancements(cursor):
         );
     """)
     cursor.execute("CREATE INDEX IF NOT EXISTS idx_roadmap_tasks_roadmap ON roadmap_tasks(roadmap_id);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_roadmaps_user ON roadmaps(user_id);")
+    cursor.execute("CREATE INDEX IF NOT EXISTS idx_sessions_user_date ON interview_sessions(user_id, created_at DESC);")
 
 def init_db():
     """
@@ -386,9 +388,11 @@ def init_db():
     CREATE INDEX IF NOT EXISTS idx_users_email ON users(email);
     CREATE INDEX IF NOT EXISTS idx_resumes_user ON candidate_resumes(user_id);
     CREATE INDEX IF NOT EXISTS idx_sessions_user ON interview_sessions(user_id);
+    CREATE INDEX IF NOT EXISTS idx_sessions_user_date ON interview_sessions(user_id, created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_sessions_created ON interview_sessions(created_at);
     CREATE INDEX IF NOT EXISTS idx_questions_session ON interview_questions(session_id);
     CREATE INDEX IF NOT EXISTS idx_topics_user_status ON user_topics(user_id, status);
+    CREATE INDEX IF NOT EXISTS idx_roadmaps_user ON roadmaps(user_id);
     """
 
     with get_db_cursor(commit=True) as cursor:

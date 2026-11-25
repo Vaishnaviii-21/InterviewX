@@ -13,6 +13,7 @@ from .session_manager import (
     logout_user,
     get_current_user,
     is_authenticated,
+    render_auth_guard,
 )
 
 __all__ = [
@@ -27,4 +28,5 @@ __all__ = [
     "logout_user",
     "get_current_user",
     "is_authenticated",
+    "render_auth_guard",
 ]

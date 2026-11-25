@@ -7,7 +7,7 @@ and allows viewing full feedback reports or deleting session records with strict
 import json
 import streamlit as st
 import pandas as pd
-from auth import get_current_user, is_authenticated
+from auth import get_current_user, is_authenticated, render_auth_guard
 from database import (
     get_all_interviews,
     get_interview_questions,
@@ -17,18 +17,14 @@ from components.cards import render_honest_feedback_comparison
 
 def render_history_page():
     """Renders the comprehensive interview history and progress tracker."""
-    st.markdown("## 📈 Module 5: Interview History & Archive")
+    if not render_auth_guard("Interview History & Archive"):
+        return
+
+    st.markdown('<h1 class="page-title-h1"><span aria-hidden="true">📁</span> Interview History &amp; Archive</h1>', unsafe_allow_html=True)
     st.markdown(
         "Audit every mock interview attempt. Track your long-term score progression, "
         "measure accuracy improvements, review question-level evaluations, or export reports."
     )
-
-    if not is_authenticated():
-        st.warning("🔒 **Protected Page:** You must be signed in to view your interview history.", icon="🔒")
-        if st.button("🔑 Sign In / Register", type="primary"):
-            st.session_state["active_page"] = "auth"
-            st.rerun()
-        return
 
     curr_user = get_current_user()
     user_id = curr_user["id"]

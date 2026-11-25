@@ -9,7 +9,7 @@ the candidate's exact interview weaknesses:
 
 import json
 import streamlit as st
-from auth import get_current_user, is_authenticated
+from auth import get_current_user, is_authenticated, render_auth_guard
 from database import (
     get_user_by_id,
     get_all_user_topics,
@@ -23,18 +23,14 @@ from services.gemini_service import GeminiService
 
 def render_roadmap_page():
     """Renders the Personalised Preparation Roadmap page."""
-    st.markdown("## 🗺️ Personalised Preparation Roadmap")
+    if not render_auth_guard("Personalised Preparation Roadmap"):
+        return
+
+    st.markdown('<h1 class="page-title-h1"><span aria-hidden="true">🗺️</span> Personalised Preparation Roadmap</h1>', unsafe_allow_html=True)
     st.markdown(
         "Bridge the technical gaps diagnosed during your mock interviews. Generate a "
         "**structured, day-by-day preparation roadmap** with interactive checkboxes to track your progress."
     )
-
-    if not is_authenticated():
-        st.warning("🔒 **Protected Page:** You must be signed in to access your preparation roadmaps.", icon="🔒")
-        if st.button("🔑 Sign In / Register", type="primary"):
-            st.session_state["active_page"] = "auth"
-            st.rerun()
-        return
 
     curr_user = get_current_user()
     user_id = curr_user["id"]

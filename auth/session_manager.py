@@ -53,3 +53,30 @@ def get_current_user() -> Optional[Dict[str, Any]]:
 def is_authenticated() -> bool:
     """Returns True if a valid user session is active."""
     return bool(st.session_state.get("is_authenticated") and st.session_state.get("user"))
+
+def render_auth_guard(feature_name: str = "this protected page") -> bool:
+    """
+    Renders a standardized, accessible authentication guard when unauthenticated.
+    Returns True if authenticated (allowing the caller to proceed),
+    or False if unauthenticated after rendering the login prompt.
+    """
+    if is_authenticated():
+        return True
+
+    clean_feature = str(feature_name).strip()
+    st.warning(f"🔒 **Protected Page:** You must be signed in. Please sign in or register to access {clean_feature}.", icon="🔒")
+    st.markdown(
+        f"This section contains private candidate records, AI evaluations, and personalized preparation tools. "
+        "Please sign in or create an account to view your data."
+    )
+    col_login, col_home = st.columns(2)
+    with col_login:
+        safe_key = clean_feature.lower().replace(" ", "_").replace("&", "and")
+        if st.button("🔑 Sign In / Register", key=f"guard_login_{safe_key}", type="primary", width="stretch"):
+            st.session_state["active_page"] = "auth"
+            st.rerun()
+    with col_home:
+        if st.button("🏠 Back to Home", key=f"guard_home_{safe_key}", width="stretch"):
+            st.session_state["active_page"] = "landing"
+            st.rerun()
+    return False

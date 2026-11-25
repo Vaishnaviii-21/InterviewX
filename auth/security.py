@@ -100,13 +100,13 @@ def validate_email(email: str) -> Tuple[bool, str]:
 
 def validate_password(password: str) -> Tuple[bool, str]:
     """
-    Validates password strength.
-    Minimum 6 characters, must not be purely whitespace.
+    Validates password strength according to modern OWASP/NIST guidelines.
+    Minimum 8 characters, must not exceed 128 characters, and must not start or end with whitespace.
     """
     if not password:
         return False, "Password is required."
-    if len(password) < 6:
-        return False, "Password must be at least 6 characters long."
+    if len(password) < 8:
+        return False, "Password must be at least 8 characters long."
     if len(password) > 128:
         return False, "Password cannot exceed 128 characters."
     if password.strip() != password:

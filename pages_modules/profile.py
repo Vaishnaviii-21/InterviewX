@@ -8,7 +8,7 @@ Allows candidates to:
 
 import streamlit as st
 from config import JOB_ROLES, COMPANY_TIERS
-from auth import get_current_user, is_authenticated, login_user, logout_user
+from auth import get_current_user, is_authenticated, login_user, logout_user, render_auth_guard
 from database import (
     get_user_by_id,
     update_user_profile,
@@ -19,11 +19,7 @@ from database import (
 
 def render_profile_page():
     """Renders the Candidate Profile & Account Settings view."""
-    if not is_authenticated():
-        st.info("Please sign in or register to manage your personal profile and settings.", icon="ℹ️")
-        if st.button("🔑 Sign In / Register", type="primary"):
-            st.session_state["active_page"] = "auth"
-            st.rerun()
+    if not render_auth_guard("your Candidate Profile & Settings"):
         return
 
     curr_user = get_current_user()
@@ -37,7 +33,7 @@ def render_profile_page():
     # Header with title and clear Logout button
     p_col1, p_col2 = st.columns([3, 1], vertical_alignment="center")
     with p_col1:
-        st.markdown("## 👤 Candidate Profile & Settings")
+        st.markdown('<h1 class="page-title-h1"><span aria-hidden="true">👤</span> Candidate Profile &amp; Settings</h1>', unsafe_allow_html=True)
     with p_col2:
         if st.button("🚪 Logout", key="profile_top_logout_btn", width="stretch", help="Sign out of your session"):
             logout_user()
