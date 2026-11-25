@@ -21,7 +21,7 @@ def render_weakness_tracker_page():
     if not render_auth_guard("Personalized Weakness & Competency Tracker"):
         return
 
-    st.markdown('<h1 class="page-title-h1"><span aria-hidden="true">⚠️</span> Personalized Weakness &amp; Competency Tracker</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 id="main-content" class="page-title-h1" tabindex="-1"><span aria-hidden="true">⚠️</span> Personalized Weakness &amp; Competency Tracker</h1>', unsafe_allow_html=True)
     st.markdown(
         "InterviewX automatically indexes technical gaps, syntax errors, and incomplete concepts "
         "detected during your interviews. Track your revision progress and prioritize your preparation."

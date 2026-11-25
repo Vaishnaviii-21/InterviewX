@@ -33,7 +33,7 @@ def render_profile_page():
     # Header with title and clear Logout button
     p_col1, p_col2 = st.columns([3, 1], vertical_alignment="center")
     with p_col1:
-        st.markdown('<h1 class="page-title-h1"><span aria-hidden="true">👤</span> Candidate Profile &amp; Settings</h1>', unsafe_allow_html=True)
+        st.markdown('<h1 id="main-content" class="page-title-h1" tabindex="-1"><span aria-hidden="true">👤</span> Candidate Profile &amp; Settings</h1>', unsafe_allow_html=True)
     with p_col2:
         if st.button("🚪 Logout", key="profile_top_logout_btn", width="stretch", help="Sign out of your session"):
             logout_user()

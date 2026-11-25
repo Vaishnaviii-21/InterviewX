@@ -147,20 +147,87 @@ class TestAccessibility(unittest.TestCase):
         self.assertIn(".page-title-h1", self.css_content)
 
     def test_09_skip_link_markup_and_anchor_target_in_app(self):
-        """Verify that app.py contains skip link pointing to #main-content and matching unique anchor container."""
+        """Verify that components/navbar.py contains skip link pointing to #main-content using semantic HTML without positive tabindex."""
+        navbar_path = Path(__file__).resolve().parent.parent / "components" / "navbar.py"
         app_path = Path(__file__).resolve().parent.parent / "app.py"
+        with open(navbar_path, "r", encoding="utf-8") as f:
+            navbar_content = f.read()
         with open(app_path, "r", encoding="utf-8") as f:
             app_content = f.read()
 
-        # Check skip link anchor
-        self.assertIn('href="#main-content"', app_content)
-        self.assertIn('class="skip-to-content"', app_content)
-        self.assertIn('Skip to main content', app_content)
+        # Check skip link anchor attributes in components/navbar.py
+        self.assertIn('href="#main-content"', navbar_content)
+        self.assertIn('class="skip-to-content"', navbar_content)
+        self.assertIn('Skip to main content', navbar_content)
+        self.assertIn('aria-label="Skip to main content"', navbar_content)
 
-        # Check unique main content target container with tabindex="-1"
-        self.assertIn('id="main-content"', app_content)
-        self.assertIn('tabindex="-1"', app_content)
-        self.assertIn('main-content-target', app_content)
+        # Ensure NO positive tabindex values are used (WCAG semantic compliance)
+        self.assertNotIn('tabindex="1"', navbar_content)
+        self.assertNotIn('tabindex="2"', navbar_content)
+        self.assertNotIn('tabindex="1"', app_content)
+
+        # Verify skip link is placed at top of sidebar before branding and logout button
+        skip_pos = navbar_content.find('class="skip-to-content"')
+        brand_pos = navbar_content.find('brand_html')
+        logout_pos = navbar_content.find('sidebar_logout_btn')
+        self.assertNotEqual(skip_pos, -1, "Skip link must be present in navbar")
+        self.assertNotEqual(brand_pos, -1, "Brand header must be present in navbar")
+        self.assertLess(skip_pos, brand_pos, "Skip link must be rendered before branding in DOM")
+        if logout_pos != -1:
+            self.assertLess(skip_pos, logout_pos, "Skip link must be rendered before Logout button in DOM")
+
+        # Verify exactly one global skip link exists across the app (no duplicate skip links)
+        total_skip_links = navbar_content.count('class="skip-to-content"') + app_content.count('class="skip-to-content"')
+        self.assertEqual(total_skip_links, 1, "There must be exactly one skip link globally to avoid duplicate skip links")
+
+    def test_10_every_page_has_main_content_target(self):
+        """Verify that every single page view assigns id='main-content' and tabindex='-1' to its primary heading."""
+        base_dir = Path(__file__).resolve().parent.parent
+        pages_to_check = [
+            base_dir / "pages_modules" / "landing.py",
+            base_dir / "components" / "auth_forms.py",
+            base_dir / "pages_modules" / "dashboard.py",
+            base_dir / "pages_modules" / "profile.py",
+            base_dir / "pages_modules" / "interview.py",
+            base_dir / "pages_modules" / "resume_analyzer.py",
+            base_dir / "pages_modules" / "feedback.py",
+            base_dir / "pages_modules" / "weakness_tracker.py",
+            base_dir / "pages_modules" / "roadmap.py",
+            base_dir / "pages_modules" / "analytics.py",
+            base_dir / "pages_modules" / "history.py",
+        ]
+
+        for page_path in pages_to_check:
+            with open(page_path, "r", encoding="utf-8") as f:
+                content = f.read()
+            self.assertIn(
+                'id="main-content"', content,
+                f"Page {page_path.name} must contain an element with id='main-content'"
+            )
+            self.assertIn(
+                'tabindex="-1"', content,
+                f"Page {page_path.name} main-content target must have tabindex='-1' for programmatic focus"
+            )
+
+    def test_11_no_positive_tabindex_in_entire_codebase(self):
+        """Verify that WCAG rule against positive tabindex values is strictly enforced across all application files."""
+        base_dir = Path(__file__).resolve().parent.parent
+        positive_tabindex_found = []
+        for file_path in base_dir.rglob("*.py"):
+            # Exclude tests directory, git, venv, and cache dirs
+            if any(part in file_path.parts for part in [".git", "__pycache__", "venv", ".pytest_cache", "tests"]):
+                continue
+            with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+                content = f.read()
+            # Match tabindex="1" through "999" or tabindex='1'
+            matches = re.findall(r'tabindex=[\'\"]\s*[1-9]\d*[\'\"]', content, re.IGNORECASE)
+            if matches:
+                positive_tabindex_found.append((str(file_path.relative_to(base_dir)), matches))
+
+        self.assertEqual(
+            positive_tabindex_found, [],
+            f"Found positive tabindex values (WCAG violation): {positive_tabindex_found}"
+        )
 
 
 if __name__ == "__main__":

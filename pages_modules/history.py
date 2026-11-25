@@ -20,7 +20,7 @@ def render_history_page():
     if not render_auth_guard("Interview History & Archive"):
         return
 
-    st.markdown('<h1 class="page-title-h1"><span aria-hidden="true">📁</span> Interview History &amp; Archive</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 id="main-content" class="page-title-h1" tabindex="-1"><span aria-hidden="true">📁</span> Interview History &amp; Archive</h1>', unsafe_allow_html=True)
     st.markdown(
         "Audit every mock interview attempt. Track your long-term score progression, "
         "measure accuracy improvements, review question-level evaluations, or export reports."

@@ -28,7 +28,7 @@ def render_auth_page():
 <div style="display: inline-flex; align-items: center; gap: 8px; background: #EEF2FF; color: #3730A3; padding: 4px 12px; border-radius: 9999px; font-weight: 700; font-size: 0.8rem; margin-bottom: 0.75rem;">
 <span aria-hidden="true">🔒</span> Secure Candidate Portal
 </div>
-<h1 class="page-title-h1">
+<h1 id="main-content" class="page-title-h1" tabindex="-1">
 Welcome to <span style="color: #4F46E5;">InterviewX</span>
 </h1>
 <p style="font-size: 0.925rem; color: #334155; margin: 0; line-height: 1.5;">

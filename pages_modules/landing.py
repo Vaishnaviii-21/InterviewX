@@ -24,7 +24,7 @@ def render_landing_page():
 <span aria-hidden="true">🇮🇳</span> Tier-1, Tier-2 &amp; Tier-3 Graduates
 </div>
 </div>
-<h1 class="hero-tagline">
+<h1 id="main-content" class="hero-tagline" tabindex="-1">
 Practice. Get Honest Feedback.<br>Improve. Get Hired.
 </h1>
 <div class="hero-subtitle">

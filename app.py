@@ -70,7 +70,7 @@ def main():
     # 3. Initialize database
     initialize_application()
 
-    # 4. Render Navigation Sidebar
+    # 4. Render Navigation Sidebar (also renders global Skip-to-Content link as first DOM element)
     selected_page = render_sidebar()
 
     # 4b. Guard protected dashboard and private candidate pages
@@ -78,15 +78,6 @@ def main():
     if not is_authenticated() and selected_page in PROTECTED_PAGES:
         selected_page = "auth"
         st.session_state["active_page"] = "auth"
-
-    # Accessible Skip to Content Link & Unique Main Content Anchor (WCAG 2.4.1 Bypass Blocks)
-    st.markdown(
-        '<a href="#main-content" class="skip-to-content" aria-label="Skip to main content" '
-        'onclick="var el=document.getElementById(\'main-content\'); if(el){ el.tabIndex=-1; el.focus(); el.scrollIntoView({behavior:\'smooth\', block:\'start\'}); }">'
-        'Skip to main content</a>'
-        '<div id="main-content" class="main-content-target" tabindex="-1" role="region" aria-label="Main Content Area"></div>',
-        unsafe_allow_html=True
-    )
 
     # 5. Route to target page module
     try:

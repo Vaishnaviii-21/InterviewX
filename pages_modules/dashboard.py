@@ -26,7 +26,7 @@ def render_dashboard():
     # Top Navigation / Utility Row with Clear Logout Button
     head_col1, head_col2 = st.columns([3, 1], vertical_alignment="center")
     with head_col1:
-        st.markdown('<h1 class="page-title-h1"><span aria-hidden="true">📊</span> Candidate Dashboard</h1>', unsafe_allow_html=True)
+        st.markdown('<h1 id="main-content" class="page-title-h1" tabindex="-1"><span aria-hidden="true">📊</span> Candidate Dashboard</h1>', unsafe_allow_html=True)
     with head_col2:
         if st.button("🚪 Logout", key="dash_logout_btn", width="stretch", help="Sign out of your account"):
             logout_user()

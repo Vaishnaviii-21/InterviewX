@@ -20,7 +20,7 @@ def render_analytics_page():
     if not render_auth_guard("Progress Analytics & Performance Trends"):
         return
 
-    st.markdown('<h1 class="page-title-h1"><span aria-hidden="true">📈</span> Progress Analytics &amp; Performance Trends</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 id="main-content" class="page-title-h1" tabindex="-1"><span aria-hidden="true">📈</span> Progress Analytics &amp; Performance Trends</h1>', unsafe_allow_html=True)
     st.markdown(
         "Track your quantitative interview trajectory over time. Measure accuracy gains, "
         "analyze category distributions, and monitor how close you are to placement readiness."

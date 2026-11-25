@@ -26,7 +26,7 @@ def render_roadmap_page():
     if not render_auth_guard("Personalised Preparation Roadmap"):
         return
 
-    st.markdown('<h1 class="page-title-h1"><span aria-hidden="true">🗺️</span> Personalised Preparation Roadmap</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 id="main-content" class="page-title-h1" tabindex="-1"><span aria-hidden="true">🗺️</span> Personalised Preparation Roadmap</h1>', unsafe_allow_html=True)
     st.markdown(
         "Bridge the technical gaps diagnosed during your mock interviews. Generate a "
         "**structured, day-by-day preparation roadmap** with interactive checkboxes to track your progress."

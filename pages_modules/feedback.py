@@ -24,7 +24,7 @@ from utils.pdf_generator import PDFReportGenerator
 
 def render_feedback_page():
     """Renders the comprehensive Post-Interview Feedback Report."""
-    st.markdown('<h1 class="page-title-h1"><span aria-hidden="true">📋</span> Post-Interview Feedback Report</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 id="main-content" class="page-title-h1" tabindex="-1"><span aria-hidden="true">📋</span> Post-Interview Feedback Report</h1>', unsafe_allow_html=True)
     st.markdown(
         "Audit your interview performance with uncompromising engineering rigor. Review your score breakdown, "
         "identify technical misconceptions, compare with Tier-1 sample answers, and download your full PDF report."

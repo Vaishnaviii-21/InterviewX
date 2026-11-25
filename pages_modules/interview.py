@@ -49,7 +49,7 @@ def render_interview_page():
 
 def _render_interview_configuration(user_id: int):
     """Renders the comprehensive interview configuration screen."""
-    st.markdown('<h1 class="page-title-h1"><span aria-hidden="true">🎙️</span> AI Mock Interviewer</h1>', unsafe_allow_html=True)
+    st.markdown('<h1 id="main-content" class="page-title-h1" tabindex="-1"><span aria-hidden="true">🎙️</span> AI Mock Interviewer</h1>', unsafe_allow_html=True)
     st.markdown(
         "Experience realistic technical and HR interview rounds. The AI interviewer asks "
         "**one question at a time**, dynamically explores your technical depth, and provides "

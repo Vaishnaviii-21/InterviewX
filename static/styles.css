@@ -68,19 +68,13 @@
 }
 
 /* Primary Main Content Anchor (Target of Skip to Content) */
-#main-content,
-.main-content-target {
-    display: block;
-    width: 100%;
-    height: 1px;
-    margin-bottom: -1px;
-    outline: none;
-    scroll-margin-top: 5.5rem;
+#main-content {
+    scroll-margin-top: 5.5rem !important;
+    outline: none !important;
 }
 
 #main-content:focus,
-#main-content:focus-visible,
-.main-content-target:focus {
+#main-content:focus-visible {
     outline: none !important;
 }
 
