@@ -196,6 +196,7 @@ def _render_active_interview(user_id: int):
     curr_q = state["current_question"]
 
     # 2. Top Header & Progress Bar
+    st.markdown('<h1 id="main-content" class="page-title-h1" tabindex="-1"><span aria-hidden="true">🎙️</span> Live Mock Interview</h1>', unsafe_allow_html=True)
     progress_val = min(1.0, (current_q_num - 1) / max(1, total_q))
     st.progress(progress_val)
 

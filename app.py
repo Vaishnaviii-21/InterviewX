@@ -70,7 +70,18 @@ def main():
     # 3. Initialize database
     initialize_application()
 
-    # 4. Render Navigation Sidebar (also renders global Skip-to-Content link as first DOM element)
+    # Accessible Skip to Content Link (WCAG 2.4.1 Bypass Blocks)
+    # Rendered GLOBALLY on EVERY page as the very first element in the DOM before sidebar or routing.
+    # Uses standard semantic HTML (no positive tabindex) and positions at top of DOM.
+    st.markdown(
+        '<a href="#main-content" class="skip-to-content" aria-label="Skip to main content" '
+        'onclick="var el=document.getElementById(\'main-content\'); if(el){ el.tabIndex=-1; el.focus(); el.scrollIntoView({behavior:\'smooth\', block:\'start\'}); }">'
+        'Skip to main content</a>'
+        '<img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" style="display:none" alt="" onload="var s=document.querySelector(\'.skip-to-content\');if(s){var h=document.querySelector(\'.stApp\')||document.body;if(h&&h.firstChild!==s){h.insertBefore(s,h.firstChild);}}" />',
+        unsafe_allow_html=True
+    )
+
+    # 4. Render Navigation Sidebar
     selected_page = render_sidebar()
 
     # 4b. Guard protected dashboard and private candidate pages

@@ -64,6 +64,7 @@ def render_auth_guard(feature_name: str = "this protected page") -> bool:
         return True
 
     clean_feature = str(feature_name).strip()
+    st.markdown('<h1 id="main-content" class="page-title-h1" tabindex="-1">🔒 Protected Candidate Portal</h1>', unsafe_allow_html=True)
     st.warning(f"🔒 **Protected Page:** You must be signed in. Please sign in or register to access {clean_feature}.", icon="🔒")
     st.markdown(
         f"This section contains private candidate records, AI evaluations, and personalized preparation tools. "

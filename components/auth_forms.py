@@ -16,6 +16,7 @@ def render_auth_page():
     Renders the dedicated, clean Authentication page with Sign In and Registration tabs.
     """
     if is_authenticated():
+        st.markdown('<h1 id="main-content" class="page-title-h1" tabindex="-1">🔐 Candidate Access Portal</h1>', unsafe_allow_html=True)
         st.success("You are already logged in!")
         if st.button("Go to Candidate Dashboard", type="primary", width="stretch"):
             st.session_state["active_page"] = "dashboard"

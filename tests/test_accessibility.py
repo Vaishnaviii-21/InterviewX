@@ -147,7 +147,7 @@ class TestAccessibility(unittest.TestCase):
         self.assertIn(".page-title-h1", self.css_content)
 
     def test_09_skip_link_markup_and_anchor_target_in_app(self):
-        """Verify that components/navbar.py contains skip link pointing to #main-content using semantic HTML without positive tabindex."""
+        """Verify that app.py contains global skip link pointing to #main-content using semantic HTML without positive tabindex."""
         navbar_path = Path(__file__).resolve().parent.parent / "components" / "navbar.py"
         app_path = Path(__file__).resolve().parent.parent / "app.py"
         with open(navbar_path, "r", encoding="utf-8") as f:
@@ -155,26 +155,23 @@ class TestAccessibility(unittest.TestCase):
         with open(app_path, "r", encoding="utf-8") as f:
             app_content = f.read()
 
-        # Check skip link anchor attributes in components/navbar.py
-        self.assertIn('href="#main-content"', navbar_content)
-        self.assertIn('class="skip-to-content"', navbar_content)
-        self.assertIn('Skip to main content', navbar_content)
-        self.assertIn('aria-label="Skip to main content"', navbar_content)
+        # Check skip link anchor attributes in app.py (rendered globally before sidebar and routing)
+        self.assertIn('href="#main-content"', app_content)
+        self.assertIn('class="skip-to-content"', app_content)
+        self.assertIn('Skip to main content', app_content)
+        self.assertIn('aria-label="Skip to main content"', app_content)
 
         # Ensure NO positive tabindex values are used (WCAG semantic compliance)
-        self.assertNotIn('tabindex="1"', navbar_content)
-        self.assertNotIn('tabindex="2"', navbar_content)
         self.assertNotIn('tabindex="1"', app_content)
+        self.assertNotIn('tabindex="2"', app_content)
+        self.assertNotIn('tabindex="1"', navbar_content)
 
-        # Verify skip link is placed at top of sidebar before branding and logout button
-        skip_pos = navbar_content.find('class="skip-to-content"')
-        brand_pos = navbar_content.find('brand_html')
-        logout_pos = navbar_content.find('sidebar_logout_btn')
-        self.assertNotEqual(skip_pos, -1, "Skip link must be present in navbar")
-        self.assertNotEqual(brand_pos, -1, "Brand header must be present in navbar")
-        self.assertLess(skip_pos, brand_pos, "Skip link must be rendered before branding in DOM")
-        if logout_pos != -1:
-            self.assertLess(skip_pos, logout_pos, "Skip link must be rendered before Logout button in DOM")
+        # Verify skip link is placed at top of main() before render_sidebar()
+        skip_pos = app_content.find('class="skip-to-content"')
+        sidebar_pos = app_content.find('render_sidebar()')
+        self.assertNotEqual(skip_pos, -1, "Skip link must be present in app.py")
+        self.assertNotEqual(sidebar_pos, -1, "Sidebar render call must be present in app.py")
+        self.assertLess(skip_pos, sidebar_pos, "Skip link must be rendered before sidebar in app.py")
 
         # Verify exactly one global skip link exists across the app (no duplicate skip links)
         total_skip_links = navbar_content.count('class="skip-to-content"') + app_content.count('class="skip-to-content"')

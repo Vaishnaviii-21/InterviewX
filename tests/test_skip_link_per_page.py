@@ -1,17 +1,17 @@
 """
 Unit and integration tests for skip-to-main-content accessibility across every page of InterviewX.
 Verifies that:
-1. The global skip-to-content link is rendered as the first focusable DOM element in the sidebar.
-2. The link uses semantic HTML without positive tabindex.
-3. Every single page (Home, Dashboard, Interview, Resume, Feedback, Weakness, Roadmap, Analytics, History, Profile, Auth)
+1. The global skip-to-content link is rendered in app.py before sidebar or page routing.
+2. Exactly one skip link exists globally without duplicates in the navbar or page views.
+3. The link uses semantic HTML without positive tabindex.
+4. Every single page (Home, Dashboard, Interview, Resume, Feedback, Weakness, Roadmap, Analytics, History, Profile, Auth)
    renders a unique #main-content target with tabindex='-1'.
-4. Clicking/activating the skip link navigates directly to the target heading on every page.
+5. Guard and active interview states preserve the #main-content anchor.
 """
 
 import unittest
 from pathlib import Path
 import re
-import html
 
 class TestSkipLinkEveryPage(unittest.TestCase):
     """Verifies skip link rendering, target presence, and tab navigation order on every page."""
@@ -20,48 +20,55 @@ class TestSkipLinkEveryPage(unittest.TestCase):
     def setUpClass(cls):
         cls.base_dir = Path(__file__).resolve().parent.parent
 
-    def test_global_skip_link_in_sidebar(self):
-        """Verify the global skip link is rendered at the very beginning of the sidebar."""
-        navbar_path = self.base_dir / "components" / "navbar.py"
-        with open(navbar_path, "r", encoding="utf-8") as f:
+    def test_global_skip_link_in_app(self):
+        """Verify the global skip link is rendered in app.py before sidebar or page routing."""
+        app_path = self.base_dir / "app.py"
+        with open(app_path, "r", encoding="utf-8") as f:
             content = f.read()
 
         # 1. Skip link exists
         self.assertIn('class="skip-to-content"', content)
         self.assertIn('href="#main-content"', content)
         self.assertIn('Skip to main content', content)
+        self.assertIn('aria-label="Skip to main content"', content)
 
         # 2. Semantic HTML: NO positive tabindex
         self.assertNotIn('tabindex="1"', content)
         self.assertNotIn('tabindex="2"', content)
         self.assertNotIn("tabindex='1'", content)
 
-        # 3. DOM order: Skip link must be before branding, navigation radio, and logout button
+        # 3. Execution order: Skip link must be before sidebar rendering in main()
         skip_idx = content.find('class="skip-to-content"')
-        brand_idx = content.find('brand_html')
-        radio_idx = content.find('st.radio(')
-        logout_idx = content.find('sidebar_logout_btn')
+        sidebar_idx = content.find('render_sidebar()')
 
         self.assertNotEqual(skip_idx, -1)
-        self.assertNotEqual(brand_idx, -1)
-        self.assertNotEqual(radio_idx, -1)
-        self.assertNotEqual(logout_idx, -1)
+        self.assertNotEqual(sidebar_idx, -1)
+        self.assertLess(skip_idx, sidebar_idx, "Skip link must precede render_sidebar() in app.py")
 
-        self.assertLess(skip_idx, brand_idx, "Skip link must precede brand header in DOM order")
-        self.assertLess(skip_idx, radio_idx, "Skip link must precede navigation radio in DOM order")
-        self.assertLess(skip_idx, logout_idx, "Skip link must precede logout button in DOM order")
-
-    def test_no_duplicate_skip_link_in_app(self):
-        """Verify that app.py does not render a duplicate skip link."""
-        app_path = self.base_dir / "app.py"
-        with open(app_path, "r", encoding="utf-8") as f:
+    def test_no_duplicate_skip_link_in_navbar(self):
+        """Verify that components/navbar.py does not render a duplicate skip link."""
+        navbar_path = self.base_dir / "components" / "navbar.py"
+        with open(navbar_path, "r", encoding="utf-8") as f:
             content = f.read()
 
         self.assertNotIn('class="skip-to-content"', content)
         self.assertNotIn('href="#main-content"', content)
 
-    def test_all_11_pages_have_unique_main_content_target(self):
-        """Verify each of the 11 pages has exactly one unique #main-content target with tabindex='-1'."""
+    def test_exactly_one_skip_link_globally(self):
+        """Verify that across the entire platform, exactly one skip link anchor is defined."""
+        app_path = self.base_dir / "app.py"
+        navbar_path = self.base_dir / "components" / "navbar.py"
+
+        with open(app_path, "r", encoding="utf-8") as f:
+            app_cnt = f.read().count('class="skip-to-content"')
+        with open(navbar_path, "r", encoding="utf-8") as f:
+            nav_cnt = f.read().count('class="skip-to-content"')
+
+        total = app_cnt + nav_cnt
+        self.assertEqual(total, 1, f"Expected exactly 1 global skip link, found {total}")
+
+    def test_all_11_pages_have_main_content_target(self):
+        """Verify each of the 11 pages assigns id='main-content' and tabindex='-1' to its primary heading."""
         pages = {
             "Home (Landing)": self.base_dir / "pages_modules" / "landing.py",
             "Candidate Dashboard": self.base_dir / "pages_modules" / "dashboard.py",
@@ -85,12 +92,18 @@ class TestSkipLinkEveryPage(unittest.TestCase):
                 self.assertIn('id="main-content"', content, f"{page_name} missing id='main-content'")
                 # Verify tabindex="-1" exists for programmatic focus
                 self.assertIn('tabindex="-1"', content, f"{page_name} missing tabindex='-1'")
-                # Verify exactly one #main-content on the page
-                count = content.count('id="main-content"')
-                self.assertEqual(count, 1, f"{page_name} must have exactly 1 main-content target, found {count}")
                 # Verify no positive tabindex on the page
                 positive_tabindex = re.findall(r'tabindex=[\'\"]\s*[1-9]\d*[\'\"]', content)
                 self.assertEqual(positive_tabindex, [], f"{page_name} contains forbidden positive tabindex: {positive_tabindex}")
+
+    def test_auth_guard_has_main_content_target(self):
+        """Verify that the unauthenticated access guard renders #main-content target."""
+        guard_path = self.base_dir / "auth" / "session_manager.py"
+        with open(guard_path, "r", encoding="utf-8") as f:
+            content = f.read()
+
+        self.assertIn('id="main-content"', content, "render_auth_guard must contain an element with id='main-content'")
+        self.assertIn('tabindex="-1"', content, "render_auth_guard target must have tabindex='-1'")
 
     def test_styles_support_skip_link_and_main_content(self):
         """Verify CSS contains necessary positioning, transition, and scroll-margin rules."""

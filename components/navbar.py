@@ -26,18 +26,6 @@ def render_sidebar() -> str:
     Returns the selected page key.
     """
     with st.sidebar:
-        # Accessible Skip to Main Content Link (WCAG 2.4.1 Bypass Blocks)
-        # Placed as the very first element in the sidebar so that it is the absolute
-        # first focusable element in the browser DOM order across all pages.
-        # Keyboard users pressing Tab will immediately focus this link before the
-        # navigation radio, candidate card, or logout button.
-        st.markdown(
-            '<a href="#main-content" class="skip-to-content" aria-label="Skip to main content" '
-            'onclick="var el=document.getElementById(\'main-content\'); if(el){ el.tabIndex=-1; el.focus(); el.scrollIntoView({behavior:\'smooth\', block:\'start\'}); }">'
-            'Skip to main content</a>',
-            unsafe_allow_html=True
-        )
-
         # App Branding Header
         brand_html = textwrap.dedent(f"""\
 <div style="padding: 0.25rem 0 0.85rem 0;">
