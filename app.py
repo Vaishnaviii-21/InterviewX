@@ -79,8 +79,14 @@ def main():
         selected_page = "auth"
         st.session_state["active_page"] = "auth"
 
-    # Accessible Skip to Content Link & Main Anchor (WCAG 2.4.1 Bypass Blocks)
-    st.markdown('<a href="#main-content" class="skip-to-content">Skip to main content</a><div id="main-content" tabindex="-1"></div>', unsafe_allow_html=True)
+    # Accessible Skip to Content Link & Unique Main Content Anchor (WCAG 2.4.1 Bypass Blocks)
+    st.markdown(
+        '<a href="#main-content" class="skip-to-content" aria-label="Skip to main content" '
+        'onclick="var el=document.getElementById(\'main-content\'); if(el){ el.tabIndex=-1; el.focus(); el.scrollIntoView({behavior:\'smooth\', block:\'start\'}); }">'
+        'Skip to main content</a>'
+        '<div id="main-content" class="main-content-target" tabindex="-1" role="region" aria-label="Main Content Area"></div>',
+        unsafe_allow_html=True
+    )
 
     # 5. Route to target page module
     try:

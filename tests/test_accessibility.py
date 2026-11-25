@@ -64,8 +64,12 @@ class TestAccessibility(unittest.TestCase):
         self.assertIn("clip: rect(0, 0, 0, 0)", self.css_content)
 
     def test_04_skip_to_content_styling_present(self):
-        """Verify that .skip-to-content navigation bypass exists in styles.css."""
+        """Verify that .skip-to-content navigation bypass and #main-content exist with proper styling in styles.css."""
         self.assertIn(".skip-to-content", self.css_content)
+        self.assertIn(".skip-to-content:focus", self.css_content)
+        self.assertIn("#main-content", self.css_content)
+        self.assertIn("scroll-margin-top:", self.css_content)
+        self.assertIn("scroll-behavior: smooth", self.css_content)
 
     def test_05_metric_cards_contain_accessible_attributes(self):
         """Verify that metric cards use role='region', aria-label, and screen reader text."""
@@ -141,6 +145,22 @@ class TestAccessibility(unittest.TestCase):
     def test_08_page_title_h1_defined_in_styles(self):
         """Verify that .page-title-h1 styling is present in styles.css."""
         self.assertIn(".page-title-h1", self.css_content)
+
+    def test_09_skip_link_markup_and_anchor_target_in_app(self):
+        """Verify that app.py contains skip link pointing to #main-content and matching unique anchor container."""
+        app_path = Path(__file__).resolve().parent.parent / "app.py"
+        with open(app_path, "r", encoding="utf-8") as f:
+            app_content = f.read()
+
+        # Check skip link anchor
+        self.assertIn('href="#main-content"', app_content)
+        self.assertIn('class="skip-to-content"', app_content)
+        self.assertIn('Skip to main content', app_content)
+
+        # Check unique main content target container with tabindex="-1"
+        self.assertIn('id="main-content"', app_content)
+        self.assertIn('tabindex="-1"', app_content)
+        self.assertIn('main-content-target', app_content)
 
 
 if __name__ == "__main__":
